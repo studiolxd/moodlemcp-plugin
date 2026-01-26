@@ -1,0 +1,134 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace local_moodlemcp;
+
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/local/moodlemcp/lib.php');
+
+/**
+ * Event observer for MoodleMCP.
+ *
+ * @package    local_moodlemcp
+ * @copyright  2026 Studio LXD
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class observer
+{
+
+    /**
+     * Triggered when a role is assigned to a user.
+     *
+     * @param \core\event\role_assigned $event
+     */
+    public static function role_assigned(\core\event\role_assigned $event)
+    {
+        global $DB;
+        $userid = $event->relateduserid;
+        $user = $DB->get_record('user', ['id' => $userid], '*', IGNORE_MISSING);
+
+        if (!$user || !empty($user->deleted) || !empty($user->suspended)) {
+            return;
+        }
+
+        // Determine which services this role maps to
+        $effectiveRoles = local_moodlemcp_get_effective_roles($userid);
+        foreach ($effectiveRoles as $role) {
+            $service = local_moodlemcp_service_for_role($role);
+
+            // Check if auto-sync is enabled for this specific service
+            if (!local_moodlemcp_is_auto_sync_enabled_for_service($service)) {
+                continue;
+            }
+
+            // Sync this user (will add services as needed)
+            local_moodlemcp_sync_user_auto($user, []);
+            break; // Only need to sync once
+        }
+    }
+
+    /**
+     * Triggered when a role is unassigned from a user.
+     *
+     * @param \core\event\role_unassigned $event
+     */
+    public static function role_unassigned(\core\event\role_unassigned $event)
+    {
+        global $DB;
+        $userid = $event->relateduserid;
+        $user = $DB->get_record('user', ['id' => $userid], '*', IGNORE_MISSING);
+
+        if (!$user || !empty($user->deleted) || !empty($user->suspended)) {
+            return;
+        }
+
+        // Determine which services this role maps to
+        $effectiveRoles = local_moodlemcp_get_effective_roles($userid);
+        $hasAnyAutoSync = false;
+
+        foreach ($effectiveRoles as $role) {
+            $service = local_moodlemcp_service_for_role($role);
+            if (local_moodlemcp_is_auto_sync_enabled_for_service($service)) {
+                $hasAnyAutoSync = true;
+                break;
+            }
+        }
+
+        // Only sync if at least one MCP service has auto-sync enabled
+        if ($hasAnyAutoSync) {
+            // Pass remove_only=true to prevent adding new services when a role is removed
+            local_moodlemcp_sync_user_auto($user, [], null, true);
+        }
+    }
+
+    /**
+     * Triggered when a new user is created.
+     *
+     * @param \core\event\user_created $event
+     */
+    public static function user_created(\core\event\user_created $event)
+    {
+        // Check if auto-sync for 'user' service is enabled
+        if (!local_moodlemcp_is_auto_sync_enabled_for_service('moodlemcp_user')) {
+            return;
+        }
+
+        global $DB;
+        $userid = $event->objectid;
+        $user = $DB->get_record('user', ['id' => $userid], '*', IGNORE_MISSING);
+
+        if (!$user || !empty($user->deleted) || !empty($user->suspended)) {
+            return;
+        }
+
+        // Assign user to the 'user' service
+        local_moodlemcp_sync_user_auto($user, []);
+    }
+
+    /**
+     * Triggered when a user is deleted.
+     *
+     * @param \core\event\user_deleted $event
+     */
+    public static function user_deleted(\core\event\user_deleted $event)
+    {
+        $userid = $event->objectid;
+
+        // Delete all MCP service assignments and keys for this user
+        local_moodlemcp_delete_user_keys($userid);
+    }
+}
