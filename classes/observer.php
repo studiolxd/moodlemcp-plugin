@@ -27,16 +27,14 @@ require_once($CFG->dirroot . '/local/moodlemcp/lib.php');
  * @copyright  2026 Studio LXD
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class observer
-{
+class observer {
 
     /**
      * Triggered when a role is assigned to a user.
      *
      * @param \core\event\role_assigned $event
      */
-    public static function role_assigned(\core\event\role_assigned $event)
-    {
+    public static function role_assigned(\core\event\role_assigned $event) {
         global $DB;
         $userid = $event->relateduserid;
         $user = $DB->get_record('user', ['id' => $userid], '*', IGNORE_MISSING);
@@ -45,9 +43,9 @@ class observer
             return;
         }
 
-        // Determine which services this role maps to
-        $effectiveRoles = local_moodlemcp_get_effective_roles($userid);
-        foreach ($effectiveRoles as $role) {
+        // Determine which services this role maps to.
+        $effectiveroles = local_moodlemcp_get_effective_roles($userid);
+        foreach ($effectiveroles as $role) {
             $service = local_moodlemcp_service_for_role($role);
 
             // Check if auto-sync is enabled for this specific service
@@ -66,8 +64,7 @@ class observer
      *
      * @param \core\event\role_unassigned $event
      */
-    public static function role_unassigned(\core\event\role_unassigned $event)
-    {
+    public static function role_unassigned(\core\event\role_unassigned $event) {
         global $DB;
         $userid = $event->relateduserid;
         $user = $DB->get_record('user', ['id' => $userid], '*', IGNORE_MISSING);
@@ -76,21 +73,21 @@ class observer
             return;
         }
 
-        // Check if ANY MCP service has auto-sync enabled
+        // Check if ANY MCP service has auto-sync enabled.
         // We need to check all services because we might need to remove a service
-        // even if the user no longer has that role
-        $services = ['admin', 'manager', 'editingteacher', 'teacher', 'student', 'user'];
-        $hasAnyAutoSync = false;
+        // even if the user no longer has that role.
+        $definitions = local_moodlemcp_get_service_definitions();
+        $has_any_auto_sync = false;
 
-        foreach ($services as $service) {
-            if (local_moodlemcp_is_auto_sync_enabled_for_service('moodlemcp_' . $service)) {
-                $hasAnyAutoSync = true;
+        foreach ($definitions as $def) {
+            if (local_moodlemcp_is_auto_sync_enabled_for_service($def['shortname'])) {
+                $has_any_auto_sync = true;
                 break;
             }
         }
 
-        // Only sync if at least one MCP service has auto-sync enabled
-        if ($hasAnyAutoSync) {
+        // Only sync if at least one MCP service has auto-sync enabled.
+        if ($has_any_auto_sync) {
             // Pass remove_only=true to prevent adding new services when a role is removed
             local_moodlemcp_sync_user_auto($user, [], null, true);
         }
@@ -101,8 +98,7 @@ class observer
      *
      * @param \core\event\user_created $event
      */
-    public static function user_created(\core\event\user_created $event)
-    {
+    public static function user_created(\core\event\user_created $event) {
         // Check if auto-sync for 'user' service is enabled
         if (!local_moodlemcp_is_auto_sync_enabled_for_service('moodlemcp_user')) {
             return;
@@ -125,8 +121,7 @@ class observer
      *
      * @param \core\event\user_deleted $event
      */
-    public static function user_deleted(\core\event\user_deleted $event)
-    {
+    public static function user_deleted(\core\event\user_deleted $event) {
         $userid = $event->objectid;
 
         // Delete all MCP service assignments and keys for this user

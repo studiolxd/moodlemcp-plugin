@@ -231,13 +231,14 @@ foreach ($keys_page as $key) {
     $expiresonraw = !empty($key['expiresOn']) ? (string) $key['expiresOn'] : '';
     $sentatraw = !empty($key['sentAt']) ? (string) $key['sentAt'] : '';
 
-    // Format dates (only date, no time)
+    // Format dates (only date, no time).
     $expires = '-';
     if ($expiresonraw !== '') {
         try {
             $dt = new DateTime($expiresonraw);
             $expires = userdate($dt->getTimestamp(), get_string('strftimedatefullshort', 'langconfig'));
         } catch (Exception $e) {
+            debugging('local_moodlemcp: invalid expiresOn date: ' . $expiresonraw . ' - ' . $e->getMessage(), DEBUG_DEVELOPER);
             $expires = $expiresonraw;
         }
     }
@@ -248,6 +249,7 @@ foreach ($keys_page as $key) {
             $dt = new DateTime($sentatraw);
             $sent = userdate($dt->getTimestamp(), get_string('strftimedatefullshort', 'langconfig'));
         } catch (Exception $e) {
+            debugging('local_moodlemcp: invalid sentAt date: ' . $sentatraw . ' - ' . $e->getMessage(), DEBUG_DEVELOPER);
             $sent = $sentatraw;
         }
     }
@@ -297,37 +299,3 @@ echo html_writer::table($table);
 echo $OUTPUT->paging_bar($totalkeys, $page, $perpage, new moodle_url('/local/moodlemcp/keys.php'));
 
 echo $OUTPUT->footer();
-
-/**
- * Renders a single POST action button for a key row.
- *
- * @param string $action
- * @param string $label
- * @param string $mcpkey
- * @param string $token
- * @param string $mcpurl
- * @param string $expireson
- * @param string $sentat
- * @return string
- */
-function local_moodlemcp_render_key_action(
-    string $action,
-    string $label,
-    string $mcpkey,
-    string $token,
-    string $mcpurl,
-    string $expireson,
-    string $sentat
-): string {
-    $form = html_writer::start_tag('form', ['method' => 'post', 'action' => (new moodle_url('/local/moodlemcp/keys.php'))->out(false)]);
-    $form .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'action', 'value' => $action]);
-    $form .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'mcpkey', 'value' => $mcpkey]);
-    $form .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'token', 'value' => $token]);
-    $form .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'mcpurl', 'value' => $mcpurl]);
-    $form .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'expireson', 'value' => $expireson]);
-    $form .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sentat', 'value' => $sentat]);
-    $form .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
-    $form .= html_writer::empty_tag('input', ['type' => 'submit', 'class' => 'btn btn-secondary', 'value' => $label]);
-    $form .= html_writer::end_tag('form');
-    return $form;
-}

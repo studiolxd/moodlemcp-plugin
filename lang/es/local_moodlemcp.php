@@ -29,6 +29,14 @@ $string['pluginname'] = 'Moodle MCP';
 
 $string['privacy:metadata'] = 'El plugin local_moodlemcp no almacena datos personales.';
 
+$string['privacy:metadata:moodlemcp'] = 'Datos enviados al servicio del panel MCP para crear y gestionar claves API.';
+$string['privacy:metadata:moodlemcp:userid'] = 'El ID de usuario de Moodle.';
+$string['privacy:metadata:moodlemcp:token'] = 'El token de servicio web generado para el usuario.';
+$string['privacy:metadata:moodlemcp:roles'] = 'Los roles del usuario mapeados a servicios MCP.';
+$string['privacy:metadata:moodlemcp:email'] = 'La dirección de correo electrónico del usuario, utilizada al enviar claves MCP.';
+$string['privacy:metadata:moodlemcp:firstname'] = 'El nombre del usuario, utilizado en plantillas de correo.';
+$string['privacy:metadata:moodlemcp:lastname'] = 'El apellido del usuario, utilizado en plantillas de correo.';
+
 $string['adminpage'] = 'Moodle MCP';
 $string['settings'] = 'Configuración';
 $string['changes_saved'] = 'Cambios guardados.';

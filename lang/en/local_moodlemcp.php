@@ -19,7 +19,7 @@
  *
  * @package    local_moodlemcp
  * @category   string
- * @copyright  2026 YOUR NAME <your@email.com>
+ * @copyright  2026 Studio LXD <hello@studiolxd.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,6 +28,14 @@ defined('MOODLE_INTERNAL') || die();
 $string['pluginname'] = 'Moodle MCP';
 
 $string['privacy:metadata'] = 'The local_moodlemcp plugin does not store personal data.';
+
+$string['privacy:metadata:moodlemcp'] = 'Data sent to the MCP panel service to create and manage API keys.';
+$string['privacy:metadata:moodlemcp:userid'] = 'The Moodle user ID.';
+$string['privacy:metadata:moodlemcp:token'] = 'The web service token generated for the user.';
+$string['privacy:metadata:moodlemcp:roles'] = 'The user roles mapped to MCP services.';
+$string['privacy:metadata:moodlemcp:email'] = 'The user email address, used when sending MCP keys.';
+$string['privacy:metadata:moodlemcp:firstname'] = 'The user first name, used in email templates.';
+$string['privacy:metadata:moodlemcp:lastname'] = 'The user last name, used in email templates.';
 
 $string['adminpage'] = 'Moodle MCP';
 $string['settings'] = 'Settings';

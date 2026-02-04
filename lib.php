@@ -29,8 +29,7 @@ defined('MOODLE_INTERNAL') || die();
  *
  * @return string
  */
-function local_moodlemcp_api_base_url(): string
-{
+function local_moodlemcp_api_base_url(): string {
     return 'https://moodlemcp.com';
 }
 
@@ -39,8 +38,7 @@ function local_moodlemcp_api_base_url(): string
  *
  * @return array[]
  */
-function local_moodlemcp_get_service_definitions(): array
-{
+function local_moodlemcp_get_service_definitions(): array {
     return [
         [
             'shortname' => 'moodlemcp_admin',
@@ -80,8 +78,7 @@ function local_moodlemcp_get_service_definitions(): array
  *
  * @return int Number of services created.
  */
-function local_moodlemcp_ensure_services(): int
-{
+function local_moodlemcp_ensure_services(): int {
     global $DB;
 
     $created = 0;
@@ -116,8 +113,7 @@ function local_moodlemcp_ensure_services(): int
  * @param string $shortname
  * @return bool
  */
-function local_moodlemcp_restore_service_baseline(string $shortname): bool
-{
+function local_moodlemcp_restore_service_baseline(string $shortname): bool {
     global $DB;
 
     $definition = null;
@@ -147,8 +143,7 @@ function local_moodlemcp_restore_service_baseline(string $shortname): bool
  * @param string[] $functions
  * @return void
  */
-function local_moodlemcp_set_service_functions(int $serviceid, array $functions): void
-{
+function local_moodlemcp_set_service_functions(int $serviceid, array $functions): void {
     global $DB;
 
     $DB->delete_records('external_services_functions', ['externalserviceid' => $serviceid]);
@@ -165,8 +160,7 @@ function local_moodlemcp_set_service_functions(int $serviceid, array $functions)
  *
  * @return array<string,string>
  */
-function local_moodlemcp_get_external_function_choices(): array
-{
+function local_moodlemcp_get_external_function_choices(): array {
     global $DB;
 
     $records = $DB->get_records('external_functions', null, 'name ASC', 'name,component');
@@ -186,8 +180,7 @@ function local_moodlemcp_get_external_function_choices(): array
  * @param string[] $shortnames
  * @return bool
  */
-function local_moodlemcp_user_has_system_role(int $userid, array $shortnames): bool
-{
+function local_moodlemcp_user_has_system_role(int $userid, array $shortnames): bool {
     global $DB;
 
     if (empty($shortnames)) {
@@ -216,8 +209,7 @@ function local_moodlemcp_user_has_system_role(int $userid, array $shortnames): b
  * @param string[] $shortnames
  * @return bool
  */
-function local_moodlemcp_user_has_course_role(int $userid, array $shortnames): bool
-{
+function local_moodlemcp_user_has_course_role(int $userid, array $shortnames): bool {
     global $DB;
 
     if (empty($shortnames)) {
@@ -245,8 +237,7 @@ function local_moodlemcp_user_has_course_role(int $userid, array $shortnames): b
  * @param int $userid
  * @return string[]
  */
-function local_moodlemcp_get_effective_roles(int $userid): array
-{
+function local_moodlemcp_get_effective_roles(int $userid): array {
     $roles = [];
 
     if (is_siteadmin($userid)) {
@@ -292,8 +283,7 @@ function local_moodlemcp_get_effective_roles(int $userid): array
  * @param string $shortname
  * @return string
  */
-function local_moodlemcp_role_from_service(string $shortname): string
-{
+function local_moodlemcp_role_from_service(string $shortname): string {
     if (substr($shortname, 0, 10) === 'moodlemcp_') {
         return substr($shortname, 10);
     }
@@ -310,8 +300,7 @@ function local_moodlemcp_role_from_service(string $shortname): string
  * @param string $service Service shortname (e.g., 'moodlemcp_admin', 'moodlemcp_teacher')
  * @return bool
  */
-function local_moodlemcp_is_auto_sync_enabled_for_service(string $service): bool
-{
+function local_moodlemcp_is_auto_sync_enabled_for_service(string $service): bool {
     $role = local_moodlemcp_role_from_service($service);
     $config_key = 'auto_sync_' . $role;
     return (int) get_config('local_moodlemcp', $config_key) === 1;
@@ -323,8 +312,7 @@ function local_moodlemcp_is_auto_sync_enabled_for_service(string $service): bool
  * @param string $service Service shortname (e.g., 'moodlemcp_admin')
  * @return string
  */
-function local_moodlemcp_get_service_display_name(string $service): string
-{
+function local_moodlemcp_get_service_display_name(string $service): string {
     $role = local_moodlemcp_role_from_service($service);
     $string_key = 'service_name_' . $role;
 
@@ -344,8 +332,7 @@ function local_moodlemcp_get_service_display_name(string $service): string
  * @param string $shortname
  * @return bool
  */
-function local_moodlemcp_user_is_eligible_for_service(int $userid, string $shortname): bool
-{
+function local_moodlemcp_user_is_eligible_for_service(int $userid, string $shortname): bool {
     $role = local_moodlemcp_role_from_service($shortname);
 
     switch ($role) {
@@ -374,8 +361,7 @@ function local_moodlemcp_user_is_eligible_for_service(int $userid, string $short
  * @param string $role
  * @return string
  */
-function local_moodlemcp_service_for_role(string $role): string
-{
+function local_moodlemcp_service_for_role(string $role): string {
     return 'moodlemcp_' . $role;
 }
 
@@ -385,8 +371,7 @@ function local_moodlemcp_service_for_role(string $role): string
  * @param string[] $roles
  * @return string[]
  */
-function local_moodlemcp_services_for_roles(array $roles): array
-{
+function local_moodlemcp_services_for_roles(array $roles): array {
     $services = [];
     foreach ($roles as $role) {
         $services[] = local_moodlemcp_service_for_role($role);
@@ -401,8 +386,7 @@ function local_moodlemcp_services_for_roles(array $roles): array
  * @param string[] $roles
  * @return string
  */
-function local_moodlemcp_primary_service_for_roles(array $roles): string
-{
+function local_moodlemcp_primary_service_for_roles(array $roles): string {
     return local_moodlemcp_service_for_role(local_moodlemcp_primary_role_for_roles($roles));
 }
 
@@ -412,8 +396,7 @@ function local_moodlemcp_primary_service_for_roles(array $roles): string
  * @param string[] $roles
  * @return string
  */
-function local_moodlemcp_primary_role_for_roles(array $roles): string
-{
+function local_moodlemcp_primary_role_for_roles(array $roles): string {
     $priority = ['admin', 'manager', 'editingteacher', 'teacher', 'student', 'user'];
     foreach ($priority as $role) {
         if (in_array($role, $roles, true)) {
@@ -425,22 +408,13 @@ function local_moodlemcp_primary_role_for_roles(array $roles): string
 }
 
 /**
- * Maps an internal role name to the API expected role name.
- *
- * @param string $role
- * @return string
- */
-
-
-/**
  * Ensures a user is authorized for a service.
  *
  * @param int $userid
  * @param int $serviceid
  * @return void
  */
-function local_moodlemcp_authorize_user_for_service(int $userid, int $serviceid): void
-{
+function local_moodlemcp_authorize_user_for_service(int $userid, int $serviceid): void {
     global $DB;
 
     if (
@@ -465,8 +439,7 @@ function local_moodlemcp_authorize_user_for_service(int $userid, int $serviceid)
  * @param int $serviceid
  * @return void
  */
-function local_moodlemcp_remove_user_from_other_services(int $userid, int $serviceid): void
-{
+function local_moodlemcp_remove_user_from_other_services(int $userid, int $serviceid): void {
     global $DB;
 
     $serviceids = local_moodlemcp_get_moodlemcp_service_ids();
@@ -491,8 +464,7 @@ function local_moodlemcp_remove_user_from_other_services(int $userid, int $servi
  * @param int $serviceid
  * @return void
  */
-function local_moodlemcp_revoke_user_tokens(int $userid, int $serviceid): void
-{
+function local_moodlemcp_revoke_user_tokens(int $userid, int $serviceid): void {
     global $DB;
 
     $DB->delete_records('external_tokens', [
@@ -508,8 +480,7 @@ function local_moodlemcp_revoke_user_tokens(int $userid, int $serviceid): void
  * @param int $serviceid
  * @return void
  */
-function local_moodlemcp_revoke_other_service_tokens(int $userid, int $serviceid): void
-{
+function local_moodlemcp_revoke_other_service_tokens(int $userid, int $serviceid): void {
     global $DB;
 
     $serviceids = local_moodlemcp_get_moodlemcp_service_ids();
@@ -533,8 +504,7 @@ function local_moodlemcp_revoke_other_service_tokens(int $userid, int $serviceid
  * @param int $userid
  * @return void
  */
-function local_moodlemcp_revoke_moodlemcp_tokens(int $userid): void
-{
+function local_moodlemcp_revoke_moodlemcp_tokens(int $userid): void {
     global $DB;
 
     $serviceids = local_moodlemcp_get_moodlemcp_service_ids();
@@ -555,8 +525,7 @@ function local_moodlemcp_revoke_moodlemcp_tokens(int $userid): void
  * @param int $validuntil
  * @return string
  */
-function local_moodlemcp_rotate_user_token(int $userid, int $serviceid, int $validuntil = 0): string
-{
+function local_moodlemcp_rotate_user_token(int $userid, int $serviceid, int $validuntil = 0): string {
     global $CFG;
 
     require_once($CFG->dirroot . '/webservice/lib.php');
@@ -576,8 +545,7 @@ function local_moodlemcp_rotate_user_token(int $userid, int $serviceid, int $val
  * @param int $serviceid
  * @return string|null
  */
-function local_moodlemcp_get_user_service_token(int $userid, int $serviceid): ?string
-{
+function local_moodlemcp_get_user_service_token(int $userid, int $serviceid): ?string {
     global $DB;
 
     $record = $DB->get_record('external_tokens', [
@@ -594,8 +562,7 @@ function local_moodlemcp_get_user_service_token(int $userid, int $serviceid): ?s
  * @param string $token
  * @return void
  */
-function local_moodlemcp_revoke_token_value(string $token): void
-{
+function local_moodlemcp_revoke_token_value(string $token): void {
     global $DB;
 
     if ($token === '') {
@@ -611,8 +578,7 @@ function local_moodlemcp_revoke_token_value(string $token): void
  * @param string $token
  * @return stdClass|null
  */
-function local_moodlemcp_get_user_by_token(string $token): ?stdClass
-{
+function local_moodlemcp_get_user_by_token(string $token): ?stdClass {
     global $DB;
 
     if ($token === '') {
@@ -633,8 +599,7 @@ function local_moodlemcp_get_user_by_token(string $token): ?stdClass
  * @param string $shortname
  * @return int|null
  */
-function local_moodlemcp_get_service_id(string $shortname): ?int
-{
+function local_moodlemcp_get_service_id(string $shortname): ?int {
     global $DB;
 
     $record = $DB->get_record('external_services', ['shortname' => $shortname], 'id', IGNORE_MISSING);
@@ -646,8 +611,7 @@ function local_moodlemcp_get_service_id(string $shortname): ?int
  *
  * @return int[]
  */
-function local_moodlemcp_get_moodlemcp_service_ids(): array
-{
+function local_moodlemcp_get_moodlemcp_service_ids(): array {
     global $DB;
 
     $shortnames = array_column(local_moodlemcp_get_service_definitions(), 'shortname');
@@ -672,8 +636,7 @@ function local_moodlemcp_get_moodlemcp_service_ids(): array
  * @param int $userid
  * @return void
  */
-function local_moodlemcp_delete_user_keys(int $userid): void
-{
+function local_moodlemcp_delete_user_keys(int $userid): void {
     global $DB;
 
     $serviceids = local_moodlemcp_get_moodlemcp_service_ids();
@@ -722,8 +685,7 @@ function local_moodlemcp_delete_user_keys(int $userid): void
  * @param int $userid
  * @return array{ok:bool,data:array|null,error:string|null}
  */
-function local_moodlemcp_recalculate_user_key(int $userid): array
-{
+function local_moodlemcp_recalculate_user_key(int $userid): array {
     global $DB;
 
     // 1. Get all MoodleMCP services
@@ -796,8 +758,7 @@ function local_moodlemcp_recalculate_user_key(int $userid): array
  * @param int $targetserviceid
  * @return void
  */
-function local_moodlemcp_cleanup_orphan_keys_on_panel(int $userid, int $targetserviceid): void
-{
+function local_moodlemcp_cleanup_orphan_keys_on_panel(int $userid, int $targetserviceid): void {
     global $DB;
 
     // Get all valid tokens for this user across all moodlemcp services
@@ -841,8 +802,7 @@ function local_moodlemcp_cleanup_orphan_keys_on_panel(int $userid, int $targetse
  * @param string $mcpurl
  * @return bool
  */
-function local_moodlemcp_send_key_email(stdClass $user, string $mcpkey, string $mcpurl): bool
-{
+function local_moodlemcp_send_key_email(stdClass $user, string $mcpkey, string $mcpurl): bool {
     $subjecttemplate = (string) get_config('local_moodlemcp', 'email_subject');
     $bodytemplate = (string) get_config('local_moodlemcp', 'email_body');
 
@@ -867,8 +827,7 @@ function local_moodlemcp_send_key_email(stdClass $user, string $mcpkey, string $
  * @param int $userid
  * @return void
  */
-function local_moodlemcp_revoke_user_keys(int $userid): void
-{
+function local_moodlemcp_revoke_user_keys(int $userid): void {
     global $DB;
 
     $serviceids = local_moodlemcp_get_moodlemcp_service_ids();
@@ -915,8 +874,7 @@ function local_moodlemcp_revoke_user_keys(int $userid): void
  * @param array $payload
  * @return array{ok:bool,data:array|null,error:string|null}
  */
-function local_moodlemcp_call_panel_api(string $path, array $payload): array
-{
+function local_moodlemcp_call_panel_api(string $path, array $payload): array {
     global $CFG;
 
     require_once($CFG->libdir . '/filelib.php');
@@ -929,21 +887,17 @@ function local_moodlemcp_call_panel_api(string $path, array $payload): array
     $info = $curl->get_info();
 
     if (!empty($curl->error)) {
-        return [
-            'ok' => false,
-            'data' => null,
-            'error' => $curl->error . ' (Status: ' . ($info['http_code'] ?? 'N/A') . ') Payload: ' . json_encode($payload)
-        ];
+        $errormsg = $curl->error . ' (Status: ' . ($info['http_code'] ?? 'N/A') . ') Payload: ' . json_encode($payload);
+        debugging('local_moodlemcp: API call to ' . $path . ' failed: ' . $errormsg, DEBUG_DEVELOPER);
+        return ['ok' => false, 'data' => null, 'error' => $errormsg];
     }
 
     $decoded = json_decode($response, true);
     if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
-        // Return raw response for debugging purposes when JSON is invalid
-        return [
-            'ok' => false,
-            'data' => null,
-            'error' => 'invalid_json: ' . substr($response, 0, 200) . ' (Status: ' . ($info['http_code'] ?? 'N/A') . ') Payload: ' . json_encode($payload)
-        ];
+        $errormsg = 'invalid_json: ' . substr($response, 0, 200) . ' (Status: ' . ($info['http_code'] ?? 'N/A')
+            . ') Payload: ' . json_encode($payload);
+        debugging('local_moodlemcp: API call to ' . $path . ' returned invalid JSON: ' . $errormsg, DEBUG_DEVELOPER);
+        return ['ok' => false, 'data' => null, 'error' => $errormsg];
     }
 
     if (isset($decoded['error'])) {
@@ -951,10 +905,12 @@ function local_moodlemcp_call_panel_api(string $path, array $payload): array
         if (isset($decoded['message']) && is_string($decoded['message'])) {
             $message = $decoded['message'];
         }
+        debugging('local_moodlemcp: API call to ' . $path . ' returned error: ' . $message, DEBUG_DEVELOPER);
         return ['ok' => false, 'data' => $decoded, 'error' => $message];
     }
 
     if (array_key_exists('success', $decoded) && empty($decoded['success'])) {
+        debugging('local_moodlemcp: API call to ' . $path . ' returned success=false', DEBUG_DEVELOPER);
         return ['ok' => false, 'data' => $decoded, 'error' => 'api_error'];
     }
 
@@ -966,8 +922,7 @@ function local_moodlemcp_call_panel_api(string $path, array $payload): array
  *
  * @return string
  */
-function local_moodlemcp_get_license_key(): string
-{
+function local_moodlemcp_get_license_key(): string {
     return (string) get_config('local_moodlemcp', 'license_key');
 }
 
@@ -976,8 +931,7 @@ function local_moodlemcp_get_license_key(): string
  *
  * @return bool
  */
-function local_moodlemcp_license_is_valid(): bool
-{
+function local_moodlemcp_license_is_valid(): bool {
     return get_config('local_moodlemcp', 'license_status') === 'ok';
 }
 
@@ -989,8 +943,7 @@ function local_moodlemcp_license_is_valid(): bool
  * @param string|null $expireson
  * @return array{ok:bool,data:array|null,error:string|null}
  */
-function local_moodlemcp_panel_create_key(string $moodletoken, $moodleroles, ?string $expireson): array
-{
+function local_moodlemcp_panel_create_key(string $moodletoken, $moodleroles, ?string $expireson): array {
     $license = local_moodlemcp_get_license_key();
     if ($license === '' || !local_moodlemcp_license_is_valid()) {
         return ['ok' => false, 'data' => null, 'error' => 'invalid_license'];
@@ -1018,8 +971,7 @@ function local_moodlemcp_panel_create_key(string $moodletoken, $moodleroles, ?st
  *
  * @return array{ok:bool,data:array|null,error:string|null}
  */
-function local_moodlemcp_panel_list_keys(): array
-{
+function local_moodlemcp_panel_list_keys(): array {
     $license = local_moodlemcp_get_license_key();
     if ($license === '' || !local_moodlemcp_license_is_valid()) {
         return ['ok' => false, 'data' => null, 'error' => 'invalid_license'];
@@ -1034,8 +986,7 @@ function local_moodlemcp_panel_list_keys(): array
  * @param string $mcpkey
  * @return array{ok:bool,data:array|null,error:string|null}
  */
-function local_moodlemcp_panel_revoke_key(string $mcpkey): array
-{
+function local_moodlemcp_panel_revoke_key(string $mcpkey): array {
     $license = local_moodlemcp_get_license_key();
     if ($license === '' || $mcpkey === '' || !local_moodlemcp_license_is_valid()) {
         return ['ok' => false, 'data' => null, 'error' => 'invalid_license'];
@@ -1055,8 +1006,7 @@ function local_moodlemcp_panel_revoke_key(string $mcpkey): array
  * @param string $mcpkey
  * @return array{ok:bool,data:array|null,error:string|null}
  */
-function local_moodlemcp_panel_delete_key(string $mcpkey): array
-{
+function local_moodlemcp_panel_delete_key(string $mcpkey): array {
     $license = local_moodlemcp_get_license_key();
     if ($license === '' || $mcpkey === '' || !local_moodlemcp_license_is_valid()) {
         return ['ok' => false, 'data' => null, 'error' => 'invalid_license'];
@@ -1075,8 +1025,7 @@ function local_moodlemcp_panel_delete_key(string $mcpkey): array
  * @param bool $suspend
  * @return array{ok:bool,data:array|null,error:string|null}
  */
-function local_moodlemcp_panel_suspend_key(string $mcpkey, bool $suspend): array
-{
+function local_moodlemcp_panel_suspend_key(string $mcpkey, bool $suspend): array {
     $license = local_moodlemcp_get_license_key();
     if ($license === '' || $mcpkey === '' || !local_moodlemcp_license_is_valid()) {
         return ['ok' => false, 'data' => null, 'error' => 'invalid_license'];
@@ -1095,8 +1044,7 @@ function local_moodlemcp_panel_suspend_key(string $mcpkey, bool $suspend): array
  * @param string $mcpkey
  * @return array{ok:bool,data:array|null,error:string|null}
  */
-function local_moodlemcp_panel_mark_sent(string $mcpkey): array
-{
+function local_moodlemcp_panel_mark_sent(string $mcpkey): array {
     $license = local_moodlemcp_get_license_key();
     if ($license === '' || $mcpkey === '' || !local_moodlemcp_license_is_valid()) {
         return ['ok' => false, 'data' => null, 'error' => 'invalid_license'];
@@ -1115,8 +1063,7 @@ function local_moodlemcp_panel_mark_sent(string $mcpkey): array
  * @param string $serviceshortname
  * @return array{ok:bool,error:string|null,mcpkey:string|null,mcpurl:string|null}
  */
-function local_moodlemcp_assign_user_to_service(int $userid, string $serviceshortname): array
-{
+function local_moodlemcp_assign_user_to_service(int $userid, string $serviceshortname): array {
     global $DB;
 
     if (!local_moodlemcp_license_is_valid()) {
@@ -1190,8 +1137,7 @@ function local_moodlemcp_assign_user_to_service(int $userid, string $serviceshor
  * @param bool $remove_only If true, only remove services, don't add new ones (used when a role is unassigned)
  * @return array{ok:bool,added:int,removed:int,result:array|null}
  */
-function local_moodlemcp_sync_user_auto(stdClass $user, array $keymap, ?string $limit_to_service = null, bool $remove_only = false): array
-{
+function local_moodlemcp_sync_user_auto(stdClass $user, array $keymap, ?string $limit_to_service = null, bool $remove_only = false): array {
     global $DB;
 
     if (!local_moodlemcp_license_is_valid()) {
@@ -1322,8 +1268,7 @@ function local_moodlemcp_sync_user_auto(stdClass $user, array $keymap, ?string $
  * @param string|null $servicefilter Shortname of the service to filter sync by (optional).
  * @return array{ok:bool,synced:int,added:int,removed:int,revoked:int}
  */
-function local_moodlemcp_sync_all_users(?string $servicefilter = null): array
-{
+function local_moodlemcp_sync_all_users(?string $servicefilter = null): array {
     global $CFG, $DB;
 
     if (!local_moodlemcp_license_is_valid()) {
@@ -1462,8 +1407,7 @@ function local_moodlemcp_sync_all_users(?string $servicefilter = null): array
  * @param string $license
  * @return array{status:string,message:string}
  */
-function local_moodlemcp_validate_license(string $license): array
-{
+function local_moodlemcp_validate_license(string $license): array {
     global $CFG;
 
     $license = trim($license);
@@ -1511,8 +1455,7 @@ function local_moodlemcp_validate_license(string $license): array
  * @param string $response
  * @return bool
  */
-function local_moodlemcp_license_response_ok(string $response): bool
-{
+function local_moodlemcp_license_response_ok(string $response): bool {
     $trimmed = trim($response);
     if ($trimmed === '') {
         return false;
@@ -1532,8 +1475,7 @@ function local_moodlemcp_license_response_ok(string $response): bool
  * @param string $response
  * @return string
  */
-function local_moodlemcp_license_error_message(string $response): string
-{
+function local_moodlemcp_license_error_message(string $response): string {
     $trimmed = trim($response);
     if ($trimmed === '') {
         return get_string('license_invalid', 'local_moodlemcp');
@@ -1566,8 +1508,7 @@ function local_moodlemcp_license_error_message(string $response): string
  * @param string $current The current tab ID.
  * @return void
  */
-function local_moodlemcp_print_tabs(string $current): void
-{
+function local_moodlemcp_print_tabs(string $current): void {
     $tabs = [
         new tabobject(
             'license',
@@ -1596,4 +1537,41 @@ function local_moodlemcp_print_tabs(string $current): void
         ),
     ];
     print_tabs([$tabs], $current);
+}
+
+/**
+ * Renders a single POST action button for a key row.
+ *
+ * @param string $action
+ * @param string $label
+ * @param string $mcpkey
+ * @param string $token
+ * @param string $mcpurl
+ * @param string $expireson
+ * @param string $sentat
+ * @return string
+ */
+function local_moodlemcp_render_key_action(
+    string $action,
+    string $label,
+    string $mcpkey,
+    string $token,
+    string $mcpurl,
+    string $expireson,
+    string $sentat
+): string {
+    $form = html_writer::start_tag('form', [
+        'method' => 'post',
+        'action' => (new moodle_url('/local/moodlemcp/keys.php'))->out(false),
+    ]);
+    $form .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'action', 'value' => $action]);
+    $form .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'mcpkey', 'value' => $mcpkey]);
+    $form .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'token', 'value' => $token]);
+    $form .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'mcpurl', 'value' => $mcpurl]);
+    $form .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'expireson', 'value' => $expireson]);
+    $form .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sentat', 'value' => $sentat]);
+    $form .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
+    $form .= html_writer::empty_tag('input', ['type' => 'submit', 'class' => 'btn btn-secondary', 'value' => $label]);
+    $form .= html_writer::end_tag('form');
+    return $form;
 }

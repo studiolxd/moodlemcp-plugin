@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * TODO describe file settings
+ * Admin settings registration for Moodle MCP.
  *
  * @package    local_moodlemcp
  * @copyright  2026 Studio LXD <hello@studiolxd.com>

@@ -32,8 +32,7 @@ require_once($CFG->dirroot . '/user/selector/lib.php');
 /**
  * Selector for potential users.
  */
-class potential_users extends \user_selector_base
-{
+class potential_users extends \user_selector_base {
     /** @var array */
     protected $options;
 
@@ -43,8 +42,7 @@ class potential_users extends \user_selector_base
      * @param string $name control name
      * @param array $options options
      */
-    public function __construct($name, $options)
-    {
+    public function __construct($name, $options) {
         parent::__construct($name, $options);
         $this->options = $options;
     }
@@ -54,8 +52,7 @@ class potential_users extends \user_selector_base
      * @param string $search
      * @return array
      */
-    public function find_users($search): array
-    {
+    public function find_users($search): array {
         global $CFG, $DB;
 
         require_once($CFG->dirroot . '/local/moodlemcp/lib.php');
@@ -177,8 +174,7 @@ class potential_users extends \user_selector_base
      *
      * @return array
      */
-    protected function get_options(): array
-    {
+    protected function get_options(): array {
         $options = parent::get_options();
         $options['service'] = $this->options['service'] ?? '';
         $options['file'] = 'local/moodlemcp/classes/selector/potential_users.php';
