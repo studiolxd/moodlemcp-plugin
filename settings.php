@@ -25,26 +25,44 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    $ADMIN->add('localplugins', new admin_externalpage(
+    // Categoría "Moodle MCP" (título sin link).
+    $ADMIN->add('localplugins', new admin_category(
+        'local_moodlemcp_category',
+        get_string('pluginname', 'local_moodlemcp')
+    ));
+
+    // Licencia.
+    $ADMIN->add('local_moodlemcp_category', new admin_externalpage(
         'local_moodlemcp',
-        get_string('adminpage', 'local_moodlemcp'),
+        get_string('tab_license', 'local_moodlemcp'),
         new moodle_url('/local/moodlemcp/index.php')
     ));
 
-    $ADMIN->add('localplugins', new admin_externalpage(
-        'local_moodlemcp_keys',
-        get_string('keys_page', 'local_moodlemcp'),
-        new moodle_url('/local/moodlemcp/keys.php')
+    // Servicios.
+    $ADMIN->add('local_moodlemcp_category', new admin_externalpage(
+        'local_moodlemcp_services',
+        get_string('tab_services', 'local_moodlemcp'),
+        new moodle_url('/local/moodlemcp/services.php')
     ));
-    $ADMIN->add('localplugins', new admin_externalpage(
+
+    // Usuarios.
+    $ADMIN->add('local_moodlemcp_category', new admin_externalpage(
         'local_moodlemcp_users',
-        get_string('users_page', 'local_moodlemcp'),
+        get_string('tab_users', 'local_moodlemcp'),
         new moodle_url('/local/moodlemcp/users.php')
     ));
 
-    $ADMIN->add('localplugins', new admin_externalpage(
+    // Claves.
+    $ADMIN->add('local_moodlemcp_category', new admin_externalpage(
+        'local_moodlemcp_keys',
+        get_string('tab_keys', 'local_moodlemcp'),
+        new moodle_url('/local/moodlemcp/keys.php')
+    ));
+
+    // Configuración.
+    $ADMIN->add('local_moodlemcp_category', new admin_externalpage(
         'local_moodlemcp_settings',
-        get_string('settings', 'local_moodlemcp'),
+        get_string('tab_settings', 'local_moodlemcp'),
         new moodle_url('/local/moodlemcp/settings_page.php')
     ));
 }
