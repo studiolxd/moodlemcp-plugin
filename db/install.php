@@ -36,6 +36,7 @@ function xmldb_local_moodlemcp_install() {
     require_once($CFG->dirroot . '/local/moodlemcp/lib.php');
 
     local_moodlemcp_ensure_services();
+    local_moodlemcp_sync_all_service_functions();
 
     set_config('license_status', 'missing', 'local_moodlemcp');
     set_config('auto_sync', 0, 'local_moodlemcp');

@@ -67,5 +67,13 @@ function xmldb_local_moodlemcp_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026012003, 'local', 'moodlemcp');
     }
 
+    if ($oldversion < 2026020500) {
+        // Sync all service functions from generated definitions.
+        local_moodlemcp_ensure_services();
+        local_moodlemcp_sync_all_service_functions();
+
+        upgrade_plugin_savepoint(true, 2026020500, 'local', 'moodlemcp');
+    }
+
     return true;
 }

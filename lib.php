@@ -24,6 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+// Include generated service function definitions.
+require_once(__DIR__ . '/db/service_functions.php');
+
 /**
  * Returns the base URL for the MoodleMCP API.
  *
@@ -33,45 +36,7 @@ function local_moodlemcp_api_base_url(): string {
     return 'https://moodlemcp.com';
 }
 
-/**
- * Returns the list of external services created by this plugin.
- *
- * @return array[]
- */
-function local_moodlemcp_get_service_definitions(): array {
-    return [
-        [
-            'shortname' => 'moodlemcp_admin',
-            'name' => 'moodlemcp_admin',
-            'functions' => [],
-        ],
-        [
-            'shortname' => 'moodlemcp_manager',
-            'name' => 'moodlemcp_manager',
-            'functions' => [],
-        ],
-        [
-            'shortname' => 'moodlemcp_editingteacher',
-            'name' => 'moodlemcp_editingteacher',
-            'functions' => [],
-        ],
-        [
-            'shortname' => 'moodlemcp_teacher',
-            'name' => 'moodlemcp_teacher',
-            'functions' => [],
-        ],
-        [
-            'shortname' => 'moodlemcp_student',
-            'name' => 'moodlemcp_student',
-            'functions' => [],
-        ],
-        [
-            'shortname' => 'moodlemcp_user',
-            'name' => 'moodlemcp_user',
-            'functions' => [],
-        ],
-    ];
-}
+// Note: local_moodlemcp_get_service_definitions() is now defined in db/service_functions.php
 
 /**
  * Ensures the MoodleMCP services exist (creates missing ones only).
@@ -148,10 +113,25 @@ function local_moodlemcp_set_service_functions(int $serviceid, array $functions)
 
     $DB->delete_records('external_services_functions', ['externalserviceid' => $serviceid]);
     foreach ($functions as $functionname) {
-        $sf = new stdClass();
-        $sf->externalserviceid = $serviceid;
-        $sf->functionname = $functionname;
-        $DB->insert_record('external_services_functions', $sf);
+        // Only add functions that exist in this Moodle installation.
+        if ($DB->record_exists('external_functions', ['name' => $functionname])) {
+            $sf = new stdClass();
+            $sf->externalserviceid = $serviceid;
+            $sf->functionname = $functionname;
+            $DB->insert_record('external_services_functions', $sf);
+        }
+    }
+}
+
+/**
+ * Syncs functions for ALL services based on their definitions.
+ * Called during install and upgrade.
+ *
+ * @return void
+ */
+function local_moodlemcp_sync_all_service_functions(): void {
+    foreach (local_moodlemcp_get_service_definitions() as $service) {
+        local_moodlemcp_restore_service_baseline($service['shortname']);
     }
 }
 
