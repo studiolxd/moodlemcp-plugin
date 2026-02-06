@@ -171,6 +171,7 @@ $string['users_add_failed_plural'] = '{$a} users could not be added.';
 $string['users_removed_singular'] = '1 user removed.';
 $string['users_removed_plural'] = '{$a} users removed.';
 $string['users_sync_all'] = 'Sync all';
+$string['users_sync_queued'] = 'Sync queued. It will run in the background.';
 $string['users_sync_done'] = 'Sync completed.';
 $string['users_sync_added_singular'] = '1 user added.';
 $string['users_sync_added_plural'] = '{$a} users added.';

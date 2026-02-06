@@ -53,8 +53,11 @@ class observer {
                 continue;
             }
 
-            // Sync this user (will add services as needed)
-            local_moodlemcp_sync_user_auto($user, []);
+            // Queue a sync task to avoid blocking the web request.
+            $task = new \local_moodlemcp\task\sync_user_adhoc();
+            $task->set_custom_data(['userid' => $userid]);
+            $task->set_component('local_moodlemcp');
+            \core\task\manager::queue_adhoc_task($task);
             break; // Only need to sync once
         }
     }
@@ -88,8 +91,11 @@ class observer {
 
         // Only sync if at least one MCP service has auto-sync enabled.
         if ($has_any_auto_sync) {
-            // Pass remove_only=true to prevent adding new services when a role is removed
-            local_moodlemcp_sync_user_auto($user, [], null, true);
+            // Queue a removal-only sync to avoid blocking the web request.
+            $task = new \local_moodlemcp\task\sync_user_adhoc();
+            $task->set_custom_data(['userid' => $userid, 'remove_only' => true]);
+            $task->set_component('local_moodlemcp');
+            \core\task\manager::queue_adhoc_task($task);
         }
     }
 
@@ -112,8 +118,11 @@ class observer {
             return;
         }
 
-        // Assign user to the 'user' service
-        local_moodlemcp_sync_user_auto($user, []);
+        // Assign user to the 'user' service asynchronously.
+        $task = new \local_moodlemcp\task\sync_user_adhoc();
+        $task->set_custom_data(['userid' => $userid, 'servicefilter' => 'moodlemcp_user']);
+        $task->set_component('local_moodlemcp');
+        \core\task\manager::queue_adhoc_task($task);
     }
 
     /**
@@ -124,7 +133,10 @@ class observer {
     public static function user_deleted(\core\event\user_deleted $event) {
         $userid = $event->objectid;
 
-        // Delete all MCP service assignments and keys for this user
-        local_moodlemcp_delete_user_keys($userid);
+        // Delete all MCP service assignments and keys for this user asynchronously.
+        $task = new \local_moodlemcp\task\delete_user_keys_adhoc();
+        $task->set_custom_data(['userid' => $userid]);
+        $task->set_component('local_moodlemcp');
+        \core\task\manager::queue_adhoc_task($task);
     }
 }

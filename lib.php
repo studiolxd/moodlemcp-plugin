@@ -287,6 +287,22 @@ function local_moodlemcp_is_auto_sync_enabled_for_service(string $service): bool
 }
 
 /**
+ * Checks if auto-sync is enabled for any MoodleMCP service.
+ *
+ * @return bool
+ */
+function local_moodlemcp_has_any_auto_sync_enabled(): bool {
+    foreach (local_moodlemcp_get_service_definitions() as $service) {
+        if (local_moodlemcp_is_auto_sync_enabled_for_service($service['shortname'])) {
+            return true;
+        }
+    }
+
+    // Backward compatibility for legacy global flag.
+    return (int) get_config('local_moodlemcp', 'auto_sync') === 1;
+}
+
+/**
  * Gets the human-readable name for a service.
  *
  * @param string $service Service shortname (e.g., 'moodlemcp_admin')
@@ -1060,13 +1076,11 @@ function local_moodlemcp_assign_user_to_service(int $userid, string $serviceshor
         return ['ok' => false, 'error' => 'missing_service', 'mcpkey' => null, 'mcpurl' => null];
     }
 
-    $transaction = $DB->start_delegated_transaction();
     try {
         local_moodlemcp_authorize_user_for_service($userid, $serviceid);
 
         // We do NOT remove from other services anymore to support multi-role keys.
         // Instead, we recalculate the key which handles token rotation if primary role changes.
-        // And now we use the returned result directly!
         $result = local_moodlemcp_recalculate_user_key($userid);
 
         $mcpkey = '';
@@ -1080,9 +1094,6 @@ function local_moodlemcp_assign_user_to_service(int $userid, string $serviceshor
 
                 // Check if we need to send email
                 if ((int) get_config('local_moodlemcp', 'auto_email') === 1) {
-                    // Check if already sent? Result doesn't have sentAt typically for NEW keys.
-                    // But we can just try sending. local_moodlemcp_send_key_email handles templates.
-                    // Wait, we need to know if it was ALREADY sent to avoid spam.
                     // The panel response for 'create' returns current state.
                     // If it was just created, sentAt is null.
                     $sentat = $result['data']['sentAt'] ?? '';
@@ -1095,15 +1106,11 @@ function local_moodlemcp_assign_user_to_service(int $userid, string $serviceshor
                 }
             }
         } else {
-            // Recalculate failed?
             throw new Exception($result['error'] ?? 'recalculate_failed');
         }
 
-        $transaction->allow_commit();
-
         return ['ok' => true, 'error' => null, 'mcpkey' => $mcpkey, 'mcpurl' => $mcpurl];
     } catch (Exception $e) {
-        $transaction->rollback($e);
         return ['ok' => false, 'error' => $e->getMessage(), 'mcpkey' => null, 'mcpurl' => null];
     }
 }

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Scheduled task to sync MoodleMCP users and keys.
+ * Ad-hoc task to sync all users for a service (or all services).
  *
  * @package    local_moodlemcp
  * @copyright  2026 Studio LXD
@@ -24,42 +24,34 @@
 
 namespace local_moodlemcp\task;
 
-use core\task\scheduled_task;
+use core\task\adhoc_task;
 
 defined('MOODLE_INTERNAL') || die();
 
-/**
- * Scheduled task to sync users and keys with the panel.
- */
-class sync_users extends scheduled_task {
+class sync_all_users_adhoc extends adhoc_task {
     /**
-     * Returns the task name.
-     *
-     * @return string
-     */
-    public function get_name(): string {
-        return get_string('task_sync_users', 'local_moodlemcp');
-    }
-
-    /**
-     * Executes the task.
+     * Execute the task.
      *
      * @return void
      */
     public function execute(): void {
-        global $CFG, $DB;
+        global $CFG;
 
         require_once($CFG->dirroot . '/local/moodlemcp/lib.php');
 
-        if (!local_moodlemcp_has_any_auto_sync_enabled()) {
-            return;
+        $data = $this->get_custom_data();
+        $servicefilter = null;
+        if (isset($data->servicefilter) && is_string($data->servicefilter) && $data->servicefilter !== '') {
+            $servicefilter = $data->servicefilter;
         }
 
-        $result = local_moodlemcp_sync_all_users();
-        if (!$result['ok']) {
-            mtrace('MoodleMCP: sync skipped (invalid license).');
-            return;
+        if ($servicefilter !== null) {
+            $valid = array_column(local_moodlemcp_get_service_definitions(), 'shortname');
+            if (!in_array($servicefilter, $valid, true)) {
+                return;
+            }
         }
-        mtrace('MoodleMCP: synced users: ' . $result['synced'] . ', revoked keys: ' . $result['revoked']);
+
+        local_moodlemcp_sync_all_users($servicefilter);
     }
 }

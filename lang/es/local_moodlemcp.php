@@ -172,6 +172,7 @@ $string['users_add_failed_plural'] = '{$a} usuarios no se pudieron añadir.';
 $string['users_removed_singular'] = 'Se quitó 1 usuario.';
 $string['users_removed_plural'] = 'Se quitaron {$a} usuarios.';
 $string['users_sync_all'] = 'Sincronizar todo';
+$string['users_sync_queued'] = 'Sincronización en cola. Se ejecutará en segundo plano.';
 $string['users_sync_done'] = 'Sincronización completada.';
 $string['users_sync_added_singular'] = 'Se añadió 1 usuario.';
 $string['users_sync_added_plural'] = 'Se añadieron {$a} usuarios.';

@@ -152,40 +152,15 @@ if (optional_param('syncall', false, PARAM_BOOL) && confirm_sesskey()) {
     if ($license === '' || !local_moodlemcp_license_is_valid()) {
         $notifications[] = ['message' => get_string('keys_missing_license', 'local_moodlemcp'), 'type' => 'notifyproblem'];
     } else {
-        $result = local_moodlemcp_sync_all_users($service);
-        if ($result['ok']) {
-            $msg = get_string('users_sync_done', 'local_moodlemcp');
+        $task = new \local_moodlemcp\task\sync_all_users_adhoc();
+        $task->set_custom_data(['servicefilter' => $service]);
+        $task->set_component('local_moodlemcp');
+        \core\task\manager::queue_adhoc_task($task);
 
-            $details = [];
-            if ($result['added'] > 0) {
-                $details[] = $result['added'] === 1
-                    ? get_string('users_sync_added_singular', 'local_moodlemcp')
-                    : get_string('users_sync_added_plural', 'local_moodlemcp', $result['added']);
-            }
-            if ($result['removed'] > 0) {
-                $details[] = $result['removed'] === 1
-                    ? get_string('users_sync_removed_singular', 'local_moodlemcp')
-                    : get_string('users_sync_removed_plural', 'local_moodlemcp', $result['removed']);
-            }
-
-            if (!empty($details)) {
-                $msg .= ' ' . implode(' ', $details);
-            }
-
-            if (isset($result['first_error'])) {
-                $msg .= ' (Debug: ' . s($result['first_error']) . ')';
-            }
-
-            $notifications[] = [
-                'message' => $msg,
-                'type' => isset($result['first_error']) ? 'notifyproblem' : 'notifysuccess',
-            ];
-        } else {
-            $notifications[] = [
-                'message' => get_string('users_sync_failed', 'local_moodlemcp'),
-                'type' => 'notifyproblem',
-            ];
-        }
+        $notifications[] = [
+            'message' => get_string('users_sync_queued', 'local_moodlemcp'),
+            'type' => 'notifysuccess',
+        ];
     }
 }
 // Context and Page setup moved to top

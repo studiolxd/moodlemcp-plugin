@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Scheduled task to sync MoodleMCP users and keys.
+ * Ad-hoc task to delete a user's keys in the panel.
  *
  * @package    local_moodlemcp
  * @copyright  2026 Studio LXD
@@ -24,42 +24,27 @@
 
 namespace local_moodlemcp\task;
 
-use core\task\scheduled_task;
+use core\task\adhoc_task;
 
 defined('MOODLE_INTERNAL') || die();
 
-/**
- * Scheduled task to sync users and keys with the panel.
- */
-class sync_users extends scheduled_task {
+class delete_user_keys_adhoc extends adhoc_task {
     /**
-     * Returns the task name.
-     *
-     * @return string
-     */
-    public function get_name(): string {
-        return get_string('task_sync_users', 'local_moodlemcp');
-    }
-
-    /**
-     * Executes the task.
+     * Execute the task.
      *
      * @return void
      */
     public function execute(): void {
-        global $CFG, $DB;
+        global $CFG;
 
         require_once($CFG->dirroot . '/local/moodlemcp/lib.php');
 
-        if (!local_moodlemcp_has_any_auto_sync_enabled()) {
+        $data = $this->get_custom_data();
+        $userid = isset($data->userid) ? (int) $data->userid : 0;
+        if (!$userid) {
             return;
         }
 
-        $result = local_moodlemcp_sync_all_users();
-        if (!$result['ok']) {
-            mtrace('MoodleMCP: sync skipped (invalid license).');
-            return;
-        }
-        mtrace('MoodleMCP: synced users: ' . $result['synced'] . ', revoked keys: ' . $result['revoked']);
+        local_moodlemcp_delete_user_keys($userid);
     }
 }
